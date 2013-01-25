@@ -32,14 +32,14 @@ namespace Git2Bit
             return response.Data;
         }
 
-        public Repositories GetRepos()
+        public List<Repository> GetRepos()
         {
             var request = new RestRequest();
             request.Resource = "user/repos";
             request.AddParameter("type", "owner", ParameterType.GetOrPost);
-            return Execute<Repositories>(request);
+            return Execute<List<Repository>>(request);
         }
 
-
+       
     }
 }

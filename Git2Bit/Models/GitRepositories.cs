@@ -5,9 +5,30 @@ using System.Text;
 
 namespace Git2Bit.Models
 {
-    public class Repositories
+    public class Owner
     {
-        public List<Repository> repositories { get; set; }
+        public string type { get; set; }
+        public string received_events_url { get; set; }
+        public string url { get; set; }
+        public string followers_url { get; set; }
+        public string avatar_url { get; set; }
+        public string following_url { get; set; }
+        public string login { get; set; }
+        public string subscriptions_url { get; set; }
+        public string starred_url { get; set; }
+        public string repos_url { get; set; }
+        public string organizations_url { get; set; }
+        public string events_url { get; set; }
+        public string gists_url { get; set; }
+        public string gravatar_id { get; set; }
+        public int id { get; set; }
+    }
+
+    public class Permissions
+    {
+        public bool admin { get; set; }
+        public bool push { get; set; }
+        public bool pull { get; set; }
     }
     
     public class Repository
@@ -17,10 +38,12 @@ namespace Git2Bit.Models
         public int watchers { get; set; }
         public string merges_url { get; set; }
         public string assignees_url { get; set; }
+        //public Owner owner { get; set; }
         public int forks_count { get; set; }
         public string comments_url { get; set; }
         public string statuses_url { get; set; }
         public string keys_url { get; set; }
+       // public Permissions permissions { get; set; }
         public string updated_at { get; set; }
         public string archive_url { get; set; }
         public string branches_url { get; set; }

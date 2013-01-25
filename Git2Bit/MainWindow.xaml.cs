@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using RestSharp;
 namespace Git2Bit
 {
     /// <summary>
@@ -19,6 +19,9 @@ namespace Git2Bit
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public List<Git2Bit.Models.Repository> GitRepos;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -33,8 +36,18 @@ namespace Git2Bit
         private void gitRepos_Click(object sender, RoutedEventArgs e)
         {
             GithubRest git = new GithubRest(gitUsername.Text, gitPassword.Password);
-            Git2Bit.Models.Repositories repos = git.GetRepos();
-
+            GitRepos = git.GetRepos();
+            
+            // Create a list of Repos that have issues
+            List<string> repos_names = new List<string>();
+            foreach (Git2Bit.Models.Repository repo in GitRepos)
+            {
+                if(repo.has_issues) {
+                    repos_names.Add(repo.full_name);
+                }
+            }
+             
+            gitRepositories.ItemsSource = repos_names;
         }
 
         private void bitRepos_Click(object sender, RoutedEventArgs e)
