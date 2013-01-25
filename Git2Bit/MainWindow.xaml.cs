@@ -23,5 +23,28 @@ namespace Git2Bit
         {
             InitializeComponent();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        
+        private void gitRepos_Click(object sender, RoutedEventArgs e)
+        {
+            GithubRest git = new GithubRest(gitUsername.Text, gitPassword.Password);
+            Git2Bit.Models.Repositories repos = git.GetRepos();
+
+        }
+
+        private void bitRepos_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        
+
+      
+     
     }
 }
