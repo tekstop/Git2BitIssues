@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RestSharp;
-using Git2Bit.GitModels;
+using Git2Bit.BitModels;
 namespace Git2Bit
 {
-    public class GithubRest
+    class BitBucketRest
     {
-        const string baseUrl = "https://api.github.com/";
+        const string baseUrl = "https://api.bitbucket.org/1.0/";
 
         private string _username;
         private string _password;
 
-        public GithubRest(string username, string password)
+        public BitBucketRest(string username, string password)
         {
             _username = username;
             _password = password;
@@ -35,10 +35,26 @@ namespace Git2Bit
         public List<Repository> GetRepos()
         {
             var request = new RestRequest();
-            request.Resource = "user/repos";
-            request.AddParameter("type", "owner", ParameterType.GetOrPost);
+            request.Resource = "user/repositories/";
             return Execute<List<Repository>>(request);
         }
+
+        public Issue PostIssue(string repo_slug, Git2Bit.GitModels.Issue gitIssue)
+        {
+            var request = new RestRequest();
+            request.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/";
+            request.Method = Method.POST;
+            
+            // Convert Issue:
+            BitModels.Issue toPostIssue = Git2Bit.BitModels.Git2BitTranslator::translate(gitIssue);
+            
+            request.AddParameter("status",toPostIssue.status,ParameterType.GetOrPost);
+            request.AddParameter("priority",toPostIssue.priority,ParameterType.GetOrPost);
+            request.AddParameter("title",toPostIssue.title,ParameterType.GetOrPost);
+
+
+        }
+
 
         public List<Milestone> GetMilestones(string repo, bool open = true)
         {
@@ -70,3 +86,5 @@ namespace Git2Bit
         }
     }
 }
+
+
