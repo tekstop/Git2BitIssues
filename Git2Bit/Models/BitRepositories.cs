@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Git2Bit.BitModels
 {
+    using ReportedBy = User;
+    using Responsible = User;
+
     public class Repository
     {
         public string scm { get; set; }
@@ -48,17 +51,20 @@ namespace Git2Bit.BitModels
         public string username { get; set; }
         public string first_name { get; set; }
         public string last_name { get; set; }
+        public string display_name { get; set; }
         public bool is_team { get; set; }
         public string avatar { get; set; }
         public string resource_uri { get; set; }
     }
 
+   
+
     public class Metadata
     {
         public string kind { get; set; }
-        public object version { get; set; }
-        public object component { get; set; }
-        public object milestone { get; set; }
+        public string version { get; set; }
+        public string component { get; set; }
+        public string milestone { get; set; }
     }
 
     public class Issue
@@ -66,9 +72,9 @@ namespace Git2Bit.BitModels
         public string status { get; set; }
         public string priority { get; set; }
         public string title { get; set; }
-        public User reported_by { get; set; }
+        public ReportedBy reported_by { get; set; }
         public string utc_last_updated { get; set; }
-        public User responsible { get; set; }
+        public Responsible responsible { get; set; }
         public int comment_count { get; set; }
         public Metadata metadata { get; set; }
         public string content { get; set; }

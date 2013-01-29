@@ -39,24 +39,54 @@ namespace Git2Bit
             return Execute<List<Repository>>(request);
         }
 
-        public Issue PostIssue(string repo_slug, Git2Bit.GitModels.Issue gitIssue)
+        public Issue PostIssue(string repo_slug, Git2Bit.GitModels.Issue gitIssue, List<Git2Bit.GitModels.Comments> comment = null)
         {
             var request = new RestRequest();
             request.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/";
             request.Method = Method.POST;
             
             // Convert Issue:
-            BitModels.Issue toPostIssue = Git2Bit.BitModels.Git2BitTranslator::translate(gitIssue);
+            BitModels.Issue toPostIssue = Git2Bit.BitModels.Git2BitTranslator.translate(gitIssue);
             
             request.AddParameter("status",toPostIssue.status,ParameterType.GetOrPost);
             request.AddParameter("priority",toPostIssue.priority,ParameterType.GetOrPost);
             request.AddParameter("title",toPostIssue.title,ParameterType.GetOrPost);
+            request.AddParameter("responsible", toPostIssue.responsible.username, ParameterType.GetOrPost);
+            request.AddParameter("content", toPostIssue.content, ParameterType.GetOrPost);
+            request.AddParameter("kind", toPostIssue.metadata.kind, ParameterType.GetOrPost);
+            request.AddParameter("milestone", toPostIssue.metadata.milestone, ParameterType.GetOrPost);
+            toPostIssue =  Execute<Issue>(request);
+
+            if (comment != null)
+            {
+                // Insert all the Comments
+                foreach (Git2Bit.GitModels.Comments comm in comment)
+                {
+                    BitModels.Comments aComm = Git2Bit.BitModels.Git2BitTranslator.translate(comm);
+                    var request1 = new RestRequest();
+                    request1.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/" + toPostIssue.local_id.ToString() + "/comments";
+                    request1.Method = Method.POST;
+                    request1.AddParameter("content", aComm.content, ParameterType.GetOrPost);
+                    aComm = Execute<Comments>(request1);
+                }
+            }
+            return toPostIssue;
 
 
         }
 
+        public Milestone PostMilestone(string repo_slug, Git2Bit.GitModels.Milestone gitMilestone)
+        {
+            var request = new RestRequest();
+            request.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/milestones";
+            request.Method = Method.POST;
+            Milestone bitMilestone = Git2Bit.BitModels.Git2BitTranslator.translate(gitMilestone);
+            request.AddParameter("name", bitMilestone.name, ParameterType.GetOrPost);
+            return Execute<Milestone>(request);
+        }
 
-        public List<Milestone> GetMilestones(string repo, bool open = true)
+
+        /*public List<Milestone> GetMilestones(string repo, bool open = true)
         {
             var request = new RestRequest();
             request.Resource = "repos/" + repo + "/milestones";
@@ -83,7 +113,7 @@ namespace Git2Bit
             var request = new RestRequest();
             request.Resource = "repos/" + repo + "/issues/" + issueId.ToString() + "/comments";
             return Execute<List<Comments>>(request);
-        }
+        }*/
     }
 }
 

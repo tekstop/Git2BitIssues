@@ -35,12 +35,14 @@ namespace Git2Bit.BitModels
             issue.title = gitIssue.title;
 
             // assignee
+            issue.responsible = new User();
             if (gitIssue.assignee != null)
             {
                 issue.responsible.username = gitIssue.assignee.login;
             }
 
             // map bug and enhancement labels
+            issue.metadata = new Metadata();
             if (gitIssue.labels != null)
             {
                 foreach (Git2Bit.GitModels.Label alabel in gitIssue.labels)
@@ -69,8 +71,21 @@ namespace Git2Bit.BitModels
                 issue.metadata.milestone = gitIssue.milestone.title;
             }
 
+            // Wrapping this with original creator and time
+            issue.content = "Originally Posted By:" + gitIssue.user.login + " on " + gitIssue.created_at + "\n\n" + gitIssue.body;
             return issue;
 
         }
+
+        public static Git2Bit.BitModels.Comments translate(Git2Bit.GitModels.Comments gitComment)
+        {
+            Git2Bit.BitModels.Comments comment = new Comments();
+            // Unfortunately only the user whos is porting gets accredited with the comment.
+            // Wrapping original Comment information inside gitComment Content.
+            comment.content = "Originally Posted By:" + gitComment.user.login + " on " + gitComment.created_at + "\n\n" + gitComment.body;
+            return comment;
+        }
+
+
     }
 }

@@ -48,6 +48,7 @@ namespace Git2Bit
             {
                 request.AddParameter("state", "closed", ParameterType.GetOrPost);
             }
+            request.AddParameter("direction", "asc", ParameterType.GetOrPost);
             return Execute<List<Milestone>>(request);
         }
 
@@ -59,6 +60,7 @@ namespace Git2Bit
             {
                 request.AddParameter("state", "closed", ParameterType.GetOrPost);
             }
+            request.AddParameter("direction", "asc", ParameterType.GetOrPost);
             return Execute<List<Issue>>(request);
         }
 

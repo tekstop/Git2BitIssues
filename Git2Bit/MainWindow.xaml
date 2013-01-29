@@ -4,17 +4,19 @@
         Title="Git2Bit" Height="446" Width="812" Loaded="Window_Loaded" Background="#FF78B4C7" FontSize="15" FontWeight="Bold" ResizeMode="NoResize" WindowStyle="ToolWindow">
     <Grid>
         <Label Content="GitHub Access" Height="32" HorizontalAlignment="Left" Margin="12,14,0,0" Name="label1" VerticalAlignment="Top" Width="113" FontSize="14" FontWeight="Normal" FontStyle="Normal" />
-        <TextBox Height="25" HorizontalAlignment="Left" Margin="12,52,0,0" Name="gitUsername" Text="username" VerticalAlignment="Top" Width="199" DataContext="{Binding ElementName=gitUsername}" FontWeight="Normal" FontSize="12" />
-        <PasswordBox Height="25" HorizontalAlignment="Left" Margin="12,94,0,0" Name="gitPassword"  PasswordChar="*" VerticalAlignment="Top" Width="199" FontSize="12" FontWeight="Normal" DataContext="{Binding ElementName=gitPassword}"  />
+        <TextBox Height="25" HorizontalAlignment="Left" Margin="12,52,0,0" Name="gitUsername" Text="" VerticalAlignment="Top" Width="199" DataContext="{Binding ElementName=gitUsername}" FontWeight="Normal" FontSize="12"  />
+        <PasswordBox Height="25" Password="" HorizontalAlignment="Left" Margin="12,94,0,0" Name="gitPassword"  PasswordChar="*" VerticalAlignment="Top" Width="199" FontSize="12" FontWeight="Normal" DataContext="{Binding ElementName=gitPassword}"  />
         <Button Content="Get Git Repos" Height="23" HorizontalAlignment="Left" Margin="12,135,0,0" Name="gitRepos" VerticalAlignment="Top" Width="94" FontWeight="Normal" FontSize="12" DataContext="{Binding}" Click="gitRepos_Click" />
         <ListBox Height="101" HorizontalAlignment="Left" Margin="12,175,0,0" Name="gitRepositories" VerticalAlignment="Top" Width="199" DataContext="{Binding ElementName=gitRepositories}" FontSize="11" SelectionChanged="gitRepositories_SelectionChanged" />
         
         <Label Content="BitBucket Access" FontSize="14" FontStyle="Normal" FontWeight="Normal" Height="32" HorizontalAlignment="Left" Margin="665,22,0,0" Name="label2" VerticalAlignment="Top" Width="113" />
-        <TextBox DataContext="{Binding ElementName=bitUsername}" FontSize="12" FontWeight="Normal" Height="25" HorizontalAlignment="Left" Margin="574,52,0,0" Name="bitUsername" Text="username" VerticalAlignment="Top" Width="204" />
-        <PasswordBox DataContext="{Binding ElementName=bitPassword}" FontSize="12" FontWeight="Normal" Height="25" HorizontalAlignment="Left" Margin="574,94,0,0" Name="bitPassword" PasswordChar="*" VerticalAlignment="Top" Width="204" />
+        <TextBox DataContext="{Binding ElementName=bitUsername}" FontSize="12" FontWeight="Normal" Height="25" HorizontalAlignment="Left" Margin="574,52,0,0" Name="bitUsername" Text="" VerticalAlignment="Top" Width="204" />
+        <PasswordBox DataContext="{Binding ElementName=bitPassword}" FontSize="12" FontWeight="Normal" Height="25" HorizontalAlignment="Left" Margin="574,94,0,0" Password="" Name="bitPassword" PasswordChar="*" VerticalAlignment="Top" Width="204" />
         <Button Content="Get Bit Repos" DataContext="{Binding}" FontSize="12" FontWeight="Normal" Height="23" HorizontalAlignment="Left" Margin="684,135,0,0" Name="bitRepos" VerticalAlignment="Top" Width="94" Click="bitRepos_Click" />
-        <ListBox DataContext="{Binding ElementName=bitRepositories}" Height="101" HorizontalAlignment="Right" Margin="0,175,12,0" Name="bitRepositories" VerticalAlignment="Top" Width="204" FontSize="11" />
+        <ListBox DataContext="{Binding ElementName=bitRepositories}" Height="101" HorizontalAlignment="Right" Margin="0,175,12,0" Name="bitRepositories" VerticalAlignment="Top" Width="204" FontSize="11" SelectionChanged="bitRepositories_SelectionChanged" />
         <Button Content="Get Issues" Height="23" HorizontalAlignment="Left" Margin="12,294,0,0" Name="gitIssuesButton" VerticalAlignment="Top" Width="75" FontWeight="Normal" FontSize="12" IsEnabled="False" Click="gitIssuesButton_Click" />
-        <TextBox Height="244" HorizontalAlignment="Left" Margin="279,73,0,0" Name="logger" VerticalAlignment="Top" Width="251" IsEnabled="True" IsReadOnly="True" FontSize="11" TextWrapping="Wrap" AcceptsReturn="True" AutoWordSelection="True" VerticalScrollBarVisibility="Visible" FontWeight="Normal" />
+        <TextBox Height="244" HorizontalAlignment="Left" Margin="255,64,0,0" Name="logger" VerticalAlignment="Top" Width="274" IsEnabled="True" IsReadOnly="True" FontSize="11" TextWrapping="Wrap" AcceptsReturn="True" AutoWordSelection="True" VerticalScrollBarVisibility="Visible" FontWeight="Normal" />
+        <Button Content="Port Issues" FontSize="12" FontWeight="Normal" Height="23" HorizontalAlignment="Left" IsEnabled="False" Margin="684,294,0,0" Name="portGitIssues" VerticalAlignment="Top" Width="75" Click="portGitIssues_Click" />
+        <Label Content="Logs:" FontSize="14" FontStyle="Normal" FontWeight="Normal" Height="32" HorizontalAlignment="Left" Margin="255,35,0,0" Name="label3" VerticalAlignment="Top" Width="113" />
     </Grid>
 </Window>
