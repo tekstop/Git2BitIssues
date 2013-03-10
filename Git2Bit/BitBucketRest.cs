@@ -24,6 +24,7 @@ namespace Git2Bit
             var client = new RestClient();
             client.BaseUrl = baseUrl;
             client.Authenticator = new HttpBasicAuthenticator(_username, _password);
+            //client.
             var response = client.Execute<T>(request);
             if (response.ErrorException != null)
             {
@@ -37,6 +38,19 @@ namespace Git2Bit
             var request = new RestRequest();
             request.Resource = "user/repositories/";
             return Execute<List<Repository>>(request);
+        }
+
+        public List<Issue> GetIssues(string repo,out string content)
+        {
+            string cnt = string.Empty;
+            var request = new RestRequest();
+            request.Resource = string.Format("repositories/{0}/{1}/issues/?start={2}",_username,repo,0);
+            request.OnBeforeDeserialization = resp => { cnt = resp.Content; };
+
+            var results = Execute<IssueSearchResults>(request);
+            content = cnt;
+
+            return results.issues;
         }
 
         public Issue PostIssue(string repo_slug, Git2Bit.GitModels.Issue gitIssue, List<Git2Bit.GitModels.Comments> comment = null)
