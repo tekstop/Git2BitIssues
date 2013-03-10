@@ -67,6 +67,12 @@ namespace Git2Bit.BitModels
         public string milestone { get; set; }
     }
 
+    public class IssueSearchResults
+    {
+        public int count { get; set; }
+        public List<Issue> issues { get; set; }
+    }
+
     public class Issue
     {
         public string status { get; set; }
