@@ -129,6 +129,7 @@ namespace Git2Bit.GitModels
         public string name { get; set; }
     }
 
+    
     public class Issue
     {
         public PullRequest pull_request { get; set; }
@@ -151,6 +152,29 @@ namespace Git2Bit.GitModels
         public int id { get; set; }
         public string body { get; set; }
     }
+    
+
+    public class IssuePost
+    {
+        public List<string> labels { get; set; }
+        public string title { get; set; }
+        public string assignee { get; set; }
+        public string body { get; set; }
+        public string state { get; set; }
+    }
+
+    /*
+    {
+  "title": "Found a bug",
+  "body": "I'm having a problem with this.",
+  "assignee": "octocat",
+  "milestone": 1,
+  "labels": [
+    "Label1",
+    "Label2"
+  ]
+    }
+    */
 
     public class Comments
     {

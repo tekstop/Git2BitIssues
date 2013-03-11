@@ -25,11 +25,23 @@ namespace Git2Bit
             client.BaseUrl = baseUrl;
             client.Authenticator = new HttpBasicAuthenticator(_username, _password);
             var response = client.Execute<T>(request);
-            if (response.ErrorException != null)
+            if (199 < (int)response.StatusCode && (int)response.StatusCode < 209)
             {
-                throw response.ErrorException;
+                //success
+                return response.Data;
             }
-            return response.Data;
+            else
+            {
+                //error
+                if (response.ErrorException != null)
+                {
+                    throw response.ErrorException;
+                }
+                else
+                {
+                    throw new Exception(string.Format("{0}({1})",response.StatusDescription,(int)response.StatusCode));
+                }
+            }
         }
 
         public List<Repository> GetRepos()
@@ -62,6 +74,35 @@ namespace Git2Bit
             }
             request.AddParameter("direction", "asc", ParameterType.GetOrPost);
             return Execute<List<Issue>>(request);
+        }
+
+        public void PostIssue(string repo_slug, Git2Bit.BitModels.Issue bitIssue, List<Git2Bit.BitModels.Comments> bitComments,out string raw)
+        {
+            string cnt = string.Empty;
+            var request = new RestRequest();
+            request.Resource = "repos/" + repo_slug + "/issues";
+            request.Method = Method.POST;
+            request.RequestFormat = DataFormat.Json;
+            request.AddHeader("Accept", "application/json");
+            request.OnBeforeDeserialization = resp => { cnt = resp.Content; };
+            
+            GitModels.IssuePost toPostIssue = Git2Bit.GitModels.Bit2GitTranslator.translate(bitIssue);
+
+            request.AddBody(toPostIssue);
+            /*
+            request.AddParameter("assignee", toPostIssue.assignee, ParameterType.GetOrPost);
+            request.AddParameter("milestone", toPostIssue.milestone, ParameterType.GetOrPost);
+            
+            request.AddParameter("state", toPostIssue.state, ParameterType.GetOrPost);
+            //request.AddParameter("priority", toPostIssue.priority, ParameterType.GetOrPost);
+            request.AddParameter("title", toPostIssue.title, ParameterType.GetOrPost);
+            //request.AddParameter("responsible", toPostIssue.responsible.username, ParameterType.GetOrPost);
+            request.AddParameter("body", toPostIssue.body, ParameterType.GetOrPost);
+            //request.AddParameter("kind", toPostIssue.metadata.kind, ParameterType.GetOrPost);
+            //request.AddParameter("milestone", toPostIssue.metadata.milestone, ParameterType.GetOrPost);
+             */
+            Execute<IssuePost>(request);
+            raw = cnt;
         }
 
         public List<Comments> GetComments(string repo, int issueId)

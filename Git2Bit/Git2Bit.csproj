@@ -74,6 +74,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Bit2GitTranslator.cs" />
     <Compile Include="Models\BitRepositories.cs" />
     <Compile Include="Models\Git2BitTranslator.cs" />
     <Compile Include="Models\GitRepositories.cs" />
