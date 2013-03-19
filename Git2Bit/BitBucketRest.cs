@@ -13,10 +13,15 @@ namespace Git2Bit
         private string _username;
         private string _password;
 
+        public bool _hasMoreIssues;
+        public int _issueOffset;
+
         public BitBucketRest(string username, string password)
         {
             _username = username;
             _password = password;
+            _hasMoreIssues = false;
+            _issueOffset = 0;
         }
 
         public T Execute<T>(RestRequest request) where T : new()
@@ -26,10 +31,7 @@ namespace Git2Bit
             client.Authenticator = new HttpBasicAuthenticator(_username, _password);
             //client.
             var response = client.Execute<T>(request);
-            if (response.ErrorException != null)
-            {
-                throw response.ErrorException;
-            }
+        
             return response.Data;
         }
 
@@ -39,19 +41,7 @@ namespace Git2Bit
             request.Resource = "user/repositories/";
             return Execute<List<Repository>>(request);
         }
-
-        public List<Issue> GetIssues(string repo,out string content)
-        {
-            string cnt = string.Empty;
-            var request = new RestRequest();
-            request.Resource = string.Format("repositories/{0}/{1}/issues/?start={2}",_username,repo,0);
-            request.OnBeforeDeserialization = resp => { cnt = resp.Content; };
-
-            var results = Execute<IssueSearchResults>(request);
-            content = cnt;
-
-            return results.issues;
-        }
+       
 
         public Issue PostIssue(string repo_slug, Git2Bit.GitModels.Issue gitIssue, List<Git2Bit.GitModels.Comments> comment = null)
         {
@@ -100,34 +90,38 @@ namespace Git2Bit
         }
 
 
-        /*public List<Milestone> GetMilestones(string repo, bool open = true)
+        public List<Milestone> GetMilestones(string repo_slug)
         {
             var request = new RestRequest();
-            request.Resource = "repos/" + repo + "/milestones";
-            if (!open)
-            {
-                request.AddParameter("state", "closed", ParameterType.GetOrPost);
-            }
+            request.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/milestones";
             return Execute<List<Milestone>>(request);
         }
 
-        public List<Issue> GetIssues(string repo, bool open = true)
+        public List<Issue> GetIssues(string repo)
         {
             var request = new RestRequest();
-            request.Resource = "repos/" + repo + "/issues";
-            if (!open)
+            request.Resource = "repositories/" + _username + "/" + repo + "/issues/?limit=50&start="+_issueOffset.ToString() ;
+            IssueQuery issueQueryResults = new IssueQuery();
+            issueQueryResults  = Execute<IssueQuery>(request);
+            if (issueQueryResults.count > 50)
             {
-                request.AddParameter("state", "closed", ParameterType.GetOrPost);
+                _hasMoreIssues = true;
+                _issueOffset = _issueOffset + 1;
             }
-            return Execute<List<Issue>>(request);
+            else
+            {
+                _hasMoreIssues = false;
+                _issueOffset = 0;
+            }
+            return issueQueryResults.issues;
         }
 
-        public List<Comments> GetComments(string repo, int issueId)
+        public List<Comments> GetComments(string repo_slug, int issueId)
         {
             var request = new RestRequest();
-            request.Resource = "repos/" + repo + "/issues/" + issueId.ToString() + "/comments";
+            request.Resource = "repositories/" + _username +"/" + repo_slug + "/issues/" + issueId.ToString() + "/comments";
             return Execute<List<Comments>>(request);
-        }*/
+        }
     }
 }
 

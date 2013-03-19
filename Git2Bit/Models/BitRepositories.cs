@@ -8,6 +8,18 @@ namespace Git2Bit.BitModels
     using ReportedBy = User;
     using Responsible = User;
 
+    public class Filter
+    {
+    }
+
+    public class IssueQuery
+    {
+        public int count { get; set; }
+        public Filter filter { get; set; }
+        public object search { get; set; }
+        public List<Issue> issues { get; set; }
+    }
+
     public class Repository
     {
         public string scm { get; set; }
@@ -57,20 +69,12 @@ namespace Git2Bit.BitModels
         public string resource_uri { get; set; }
     }
 
-   
-
     public class Metadata
     {
         public string kind { get; set; }
         public string version { get; set; }
         public string component { get; set; }
         public string milestone { get; set; }
-    }
-
-    public class IssueSearchResults
-    {
-        public int count { get; set; }
-        public List<Issue> issues { get; set; }
     }
 
     public class Issue

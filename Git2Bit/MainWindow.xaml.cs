@@ -30,23 +30,10 @@ namespace Git2Bit
 
         // BIT STUFF
         public List<Git2Bit.BitModels.Repository> BitRepos;
-        private List<Git2Bit.BitModels.Issue> _bitIssues;
-        public List<Git2Bit.BitModels.Issue> BitIssues
-        {
-            set
-            {
-                if(!string.IsNullOrEmpty(selectedGitRepositiry) && value.Count > 0)
-                    portBitIssuesToGit.IsEnabled = true;
-                else
-                    portBitIssuesToGit.IsEnabled = false;
-
-                _bitIssues = value;
-            }
-            get
-            {
-                return _bitIssues;
-            }
-        }
+        public List<Git2Bit.BitModels.Issue> bitIssues;
+        public List<Git2Bit.BitModels.Milestone> bitMilestones;
+        public Dictionary<int, List<Git2Bit.BitModels.Comments>> bitComments;
+        
         public string selectedBitRepository;
       
         
@@ -100,17 +87,37 @@ namespace Git2Bit
         private void bitGetIssuesButton_Click(object sender, RoutedEventArgs e)
         {
             BitBucketRest bit = new BitBucketRest(bitUsername.Text,bitPassword.Password);
-            string cnt = string.Empty; 
-            BitIssues = bit.GetIssues(selectedBitRepository,out cnt);
-
-#if DEBUG
-            logger.AppendText("raw response: " + cnt);
-#endif
-
-            foreach (Git2Bit.BitModels.Issue issue in BitIssues)
+            bitComments = new Dictionary<int, List<BitModels.Comments>>();
+            // Get the Bit Milestones
+            bitMilestones = bit.GetMilestones(selectedBitRepository);
+            if (bitMilestones == null)
             {
-                    logger.AppendText("Issue: " + issue.content.ToString() + Environment.NewLine);
+                logger.AppendText("The " + selectedBitRepository + " has no milestones.\n");
+
             }
+            else
+            {
+                logger.AppendText("The " + selectedBitRepository + " has " + bitMilestones.Count.ToString() + " milestones.\n");
+
+            }
+            bitIssues = bit.GetIssues(selectedBitRepository);
+            while (bit._hasMoreIssues)
+            {
+                bitIssues.Concat(bit.GetIssues(selectedBitRepository));
+            }
+            logger.AppendText("The " + selectedBitRepository + " has " + bitIssues.Count.ToString() + " issues.\n");
+            // Get individual Comments for each issue
+            foreach (Git2Bit.BitModels.Issue issue in bitIssues)
+            {
+                if (issue.comment_count > 0)
+                {
+                    // has comments:
+                    List<Git2Bit.BitModels.Comments> comments = bit.GetComments(selectedBitRepository, issue.local_id);
+                    logger.AppendText("Issue " + issue.local_id.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                    bitComments[issue.local_id] = comments;
+                }
+            }
+            bitGetIssuesButton.IsEnabled = false;
         }
 
         private void gitGetIssuesButton_Click(object sender, RoutedEventArgs e)
@@ -159,6 +166,7 @@ namespace Git2Bit
             //Enable gitIssueButton_Click with the selected repository
             gitIssuesButton.IsEnabled = true;
             selectedGitRepositiry = (string)gitRepositories.SelectedItem;
+            portBitIssuesToGit.IsEnabled = true;
         }
 
         private void bitRepositories_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -171,25 +179,15 @@ namespace Git2Bit
         private void portBitIssuesToGit_Click(object sender, RoutedEventArgs e)
         {
             GithubRest git = new GithubRest(gitUsername.Text, gitPassword.Password);
-            string raw = string.Empty;
-
-            foreach (var bitIssue in BitIssues)
+            if (bitMilestones != null && bitMilestones.Count > 0)
             {
-                try
+                logger.AppendText("This repo has Milestones. Porting them:->\n");
+                foreach (Git2Bit.BitModels.Milestone amilestone in bitMilestones)
                 {
-                    git.PostIssue(selectedGitRepositiry, bitIssue,null, out raw);
-#if DEBUG
-                    logger.AppendText("raw response portBitIssuesToGit : " + raw + Environment.NewLine);
-#endif
-                    logger.AppendText(string.Format("Ported bit issue {0} to git", bitIssue.title) + Environment.NewLine);
-                }
-                catch (Exception ex)
-                {
-                    logger.AppendText(string.Format("An error occured while trying to migrate issue {0}. Error: {1}." + Environment.NewLine, bitIssue.title, ex.Message));
+                    Git2Bit.GitModels.MilestonePost gitMilestone = git.PostMilestone(selectedGitRepositiry, amilestone);
+                    logger.AppendText("Ported closed Milestone: " + gitMilestone.title + "\n");
                 }
             }
-
-
 
         }
 

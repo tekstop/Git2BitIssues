@@ -76,33 +76,17 @@ namespace Git2Bit
             return Execute<List<Issue>>(request);
         }
 
-        public void PostIssue(string repo_slug, Git2Bit.BitModels.Issue bitIssue, List<Git2Bit.BitModels.Comments> bitComments,out string raw)
+        public void PostIssue(string repo_slug, Git2Bit.BitModels.Issue bitIssue, List<Git2Bit.BitModels.Comments> bitComments)
         {
-            string cnt = string.Empty;
             var request = new RestRequest();
             request.Resource = "repos/" + repo_slug + "/issues";
             request.Method = Method.POST;
             request.RequestFormat = DataFormat.Json;
             request.AddHeader("Accept", "application/json");
-            request.OnBeforeDeserialization = resp => { cnt = resp.Content; };
-            
             GitModels.IssuePost toPostIssue = Git2Bit.GitModels.Bit2GitTranslator.translate(bitIssue);
-
             request.AddBody(toPostIssue);
-            /*
-            request.AddParameter("assignee", toPostIssue.assignee, ParameterType.GetOrPost);
-            request.AddParameter("milestone", toPostIssue.milestone, ParameterType.GetOrPost);
-            
-            request.AddParameter("state", toPostIssue.state, ParameterType.GetOrPost);
-            //request.AddParameter("priority", toPostIssue.priority, ParameterType.GetOrPost);
-            request.AddParameter("title", toPostIssue.title, ParameterType.GetOrPost);
-            //request.AddParameter("responsible", toPostIssue.responsible.username, ParameterType.GetOrPost);
-            request.AddParameter("body", toPostIssue.body, ParameterType.GetOrPost);
-            //request.AddParameter("kind", toPostIssue.metadata.kind, ParameterType.GetOrPost);
-            //request.AddParameter("milestone", toPostIssue.metadata.milestone, ParameterType.GetOrPost);
-             */
             Execute<IssuePost>(request);
-            raw = cnt;
+          
         }
 
         public List<Comments> GetComments(string repo, int issueId)
@@ -110,6 +94,18 @@ namespace Git2Bit
             var request = new RestRequest();
             request.Resource = "repos/" + repo + "/issues/" + issueId.ToString() + "/comments";
             return Execute<List<Comments>>(request);
+        }
+
+        public MilestonePost PostMilestone(string repo, Git2Bit.BitModels.Milestone bitMilestone)
+        {
+            var request = new RestRequest();
+            request.Resource = "repos/" + repo + "/milestones";
+            request.Method = Method.POST;
+            request.RequestFormat = DataFormat.Json;
+            request.AddHeader("Accept", "application/json");
+            MilestonePost gitMilestone = Git2Bit.GitModels.Bit2GitTranslator.translate(bitMilestone);
+            request.AddBody(gitMilestone);
+            return Execute<MilestonePost>(request);
         }
     }
 }

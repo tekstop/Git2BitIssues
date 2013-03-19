@@ -7,9 +7,9 @@ namespace Git2Bit.GitModels
 {
     class Bit2GitTranslator
     {
-        public static Git2Bit.GitModels.Milestone translate(Git2Bit.BitModels.Milestone bitMilestone)
+        public static Git2Bit.GitModels.MilestonePost translate(Git2Bit.BitModels.Milestone bitMilestone)
         {
-            Git2Bit.GitModels.Milestone milestone = new Milestone();
+            Git2Bit.GitModels.MilestonePost milestone = new MilestonePost();
             milestone.title = bitMilestone.name;
             return milestone;
         }
@@ -20,6 +20,10 @@ namespace Git2Bit.GitModels
 
             // Status
             if (bitIssue.status.Equals("open"))
+            {
+                issue.state = "open";
+            } 
+            else if (bitIssue.status.Equals("new"))
             {
                 issue.state = "open";
             }

@@ -152,7 +152,11 @@ namespace Git2Bit.GitModels
         public int id { get; set; }
         public string body { get; set; }
     }
-    
+
+    public class MilestonePost
+    {
+        public string title { get; set; }
+    }
 
     public class IssuePost
     {
