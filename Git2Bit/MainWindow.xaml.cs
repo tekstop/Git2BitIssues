@@ -125,38 +125,47 @@ namespace Git2Bit
             GithubRest git = new GithubRest(gitUsername.Text, gitPassword.Password);
             gitComments = new Dictionary<int, List<GitModels.Comments>>();
             openGitMilestones = git.GetMilestones(selectedGitRepositiry);
-            logger.AppendText("The " + selectedGitRepositiry + " has " + openGitMilestones.Count.ToString() + " open milestones.\n");
+            if (openGitMilestones != null)
+            {
+                logger.AppendText("The " + selectedGitRepositiry + " has " + openGitMilestones.Count.ToString() + " open milestones.\n");
+            }
             closedGitMilestones = git.GetMilestones(selectedGitRepositiry, false);
-            logger.AppendText("The " + selectedGitRepositiry + " has " + closedGitMilestones.Count.ToString() + " closed milestones.\n");
+            if (closedGitMilestones != null)
+            {
+                logger.AppendText("The " + selectedGitRepositiry + " has " + closedGitMilestones.Count.ToString() + " closed milestones.\n");
+            }
             openGitIssues = git.GetIssues(selectedGitRepositiry);
-            logger.AppendText("The " + selectedGitRepositiry + " has " + openGitIssues.Count.ToString() + " open issues.\n");
+            if (openGitIssues != null)
+            {
+                logger.AppendText("The " + selectedGitRepositiry + " has " + openGitIssues.Count.ToString() + " open issues.\n");
+                // Get individual Comments for each open issue
+                foreach (Git2Bit.GitModels.Issue issue in openGitIssues)
+                {
+                    if (issue.comments > 0)
+                    {
+                        // has comments:
+                        List<Git2Bit.GitModels.Comments> comments = git.GetComments(selectedGitRepositiry, issue.number);
+                        logger.AppendText("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                        gitComments[issue.number] = comments;
+                    }
+                }
+            }
             closedGitIssues = git.GetIssues(selectedGitRepositiry, false);
-            logger.AppendText("The " + selectedGitRepositiry + " has " + closedGitIssues.Count.ToString() + " closed issues.\n");
-
-            // Get individual Comments for each open issue
-            foreach (Git2Bit.GitModels.Issue issue in openGitIssues)
+            if (closedGitIssues != null)
             {
-                if (issue.comments > 0)
+                logger.AppendText("The " + selectedGitRepositiry + " has " + closedGitIssues.Count.ToString() + " closed issues.\n");
+                // Get individual Comments for each open issue
+                foreach (Git2Bit.GitModels.Issue issue in closedGitIssues)
                 {
-                    // has comments:
-                    List<Git2Bit.GitModels.Comments> comments = git.GetComments(selectedGitRepositiry, issue.number);
-                    logger.AppendText("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
-                    gitComments[issue.number] = comments;
+                    if (issue.comments > 0)
+                    {
+                        // has comments:
+                        List<Git2Bit.GitModels.Comments> comments = git.GetComments(selectedGitRepositiry, issue.number);
+                        logger.AppendText("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                        gitComments[issue.number] = comments;
+                    }
                 }
             }
-
-            // Get individual Comments for each open issue
-            foreach (Git2Bit.GitModels.Issue issue in closedGitIssues)
-            {
-                if (issue.comments > 0)
-                {
-                    // has comments:
-                    List<Git2Bit.GitModels.Comments> comments = git.GetComments(selectedGitRepositiry, issue.number);
-                    logger.AppendText("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
-                    gitComments[issue.number] = comments;
-                }
-            }
-
 
             gitIssuesButton.IsEnabled = false;
         }
