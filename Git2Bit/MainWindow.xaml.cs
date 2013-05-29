@@ -209,7 +209,10 @@ namespace Git2Bit
                 foreach (Git2Bit.GitModels.Milestone amilestone in closedGitMilestones)
                 {
                     Git2Bit.BitModels.Milestone bitMilestone = bit.PostMilestone(selectedBitRepository,amilestone);
-                    logger.AppendText("Ported closed Milestone: " + bitMilestone.name + "\n");
+                    if (bitMilestone != null)
+                    {
+                        logger.AppendText("Ported closed Milestone: " + bitMilestone.name + "\n");
+                    }
                 }
             }
 
@@ -219,7 +222,10 @@ namespace Git2Bit
                 foreach (Git2Bit.GitModels.Milestone amilestone in openGitMilestones)
                 {
                     Git2Bit.BitModels.Milestone bitMilestone = bit.PostMilestone(selectedBitRepository, amilestone);
-                    logger.AppendText("Ported open Milestone: " + bitMilestone.name + "\n");
+                    if (bitMilestone != null)
+                    {
+                        logger.AppendText("Ported open Milestone: " + bitMilestone.name + "\n");
+                    }
                 }
             }
 
@@ -235,7 +241,10 @@ namespace Git2Bit
                     }
 
                     Git2Bit.BitModels.Issue bitIssue = bit.PostIssue(selectedBitRepository, aissue, issueComments);
-                    logger.AppendText("Ported closed Issue: " + bitIssue.title + "\n");
+                    if (bitIssue != null)
+                    {
+                        logger.AppendText("Ported closed Issue: " + bitIssue.title + "\n");
+                    }
                 }
             }
 
@@ -251,7 +260,10 @@ namespace Git2Bit
                     }
 
                     Git2Bit.BitModels.Issue bitIssue = bit.PostIssue(selectedBitRepository, aissue, issueComments);
-                    logger.AppendText("Ported open Issue: " + bitIssue.title + "\n");
+                    if (bitIssue != null)
+                    {
+                        logger.AppendText("Ported open Issue: " + bitIssue.title + "\n");
+                    }
                 }
             }
             
