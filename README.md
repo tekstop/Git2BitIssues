@@ -13,6 +13,11 @@ Hence, Git2BitIssues! This is a simple converter for GitHub Issues and Milestone
 * Uses RestSharp
 * Ports from only GitHub to BitBucket
 
+
+Download Binary (built with VS2010)
+
+https://www.box.com/s/kcjkiy2m4pndcbx70clo
+
 =========================================================================
 
 Porting
