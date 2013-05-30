@@ -202,6 +202,7 @@ namespace Git2Bit
 
         private void portGitIssuesToBit_Click(object sender, RoutedEventArgs e)
         {
+            busyIndicator.IsBusy = true;
             try
             {
                 BitBucketRest bit = new BitBucketRest(bitUsername.Text, bitPassword.Password);
@@ -271,9 +272,12 @@ namespace Git2Bit
             }
             catch (System.Exception excep)
             {
-               MessageBox.Show(excep.Message);
+                busyIndicator.IsBusy = false;
+                MessageBox.Show(excep.Message);
             }
 
+            busyIndicator.IsBusy = false;
         }
+
     }
 }
