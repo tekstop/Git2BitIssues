@@ -61,18 +61,18 @@ namespace Git2Bit
             request.AddParameter("milestone", toPostIssue.metadata.milestone, ParameterType.GetOrPost);
             toPostIssue =  Execute<Issue>(request);
 
-            if (comment != null)
+            if (comment != null && toPostIssue != null)
             {
-                // Insert all the Comments
-                foreach (Git2Bit.GitModels.Comments comm in comment)
-                {
-                    BitModels.Comments aComm = Git2Bit.BitModels.Git2BitTranslator.translate(comm);
-                    var request1 = new RestRequest();
-                    request1.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/" + toPostIssue.local_id.ToString() + "/comments";
-                    request1.Method = Method.POST;
-                    request1.AddParameter("content", aComm.content, ParameterType.GetOrPost);
-                    aComm = Execute<Comments>(request1);
-                }
+                    // Insert all the Comments
+                    foreach (Git2Bit.GitModels.Comments comm in comment)
+                    {
+                        BitModels.Comments aComm = Git2Bit.BitModels.Git2BitTranslator.translate(comm);
+                        var request1 = new RestRequest();
+                        request1.Resource = "repositories/" + _username + "/" + repo_slug + "/issues/" + toPostIssue.local_id.ToString() + "/comments";
+                        request1.Method = Method.POST;
+                        request1.AddParameter("content", aComm.content, ParameterType.GetOrPost);
+                        aComm = Execute<Comments>(request1);
+                    }
             }
             return toPostIssue;
 
