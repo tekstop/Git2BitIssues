@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using RestSharp;
+using System.ComponentModel;
 namespace Git2Bit
 {
     /// <summary>
@@ -122,22 +123,50 @@ namespace Git2Bit
 
         private void gitGetIssuesButton_Click(object sender, RoutedEventArgs e)
         {
-            GithubRest git = new GithubRest(gitUsername.Text, gitPassword.Password);
+            busyIndicator.IsBusy = true;
+            busyIndicator.BusyContent = "Getting Git Issues ...";
+            BackgroundWorker bg = new BackgroundWorker();
+            List<String> arguments = new List<String>();
+            arguments.Add(gitUsername.Text);
+            arguments.Add(gitPassword.Password);
+            bg.DoWork += bg_gitIssuesWork;
+            bg.RunWorkerCompleted += bg_removeBusy;
+            bg.RunWorkerAsync(arguments);
+
+            
+        }
+
+        private void bg_removeBusy(object sender, RunWorkerCompletedEventArgs e)
+        {
+            busyIndicator.IsBusy = false;
+            gitIssuesButton.IsEnabled = true;
+            
+        }
+
+        private void bg_gitIssuesWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            List<String> list = e.Argument as List<String>;
+            GithubRest git = new GithubRest(list[0], list[1]);
             gitComments = new Dictionary<int, List<GitModels.Comments>>();
             openGitMilestones = git.GetMilestones(selectedGitRepositiry);
             if (openGitMilestones != null)
             {
-                logger.AppendText("The " + selectedGitRepositiry + " has " + openGitMilestones.Count.ToString() + " open milestones.\n");
+                String textData = "The " + selectedGitRepositiry + " has " + openGitMilestones.Count.ToString() + " open milestones.\n";
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData)));
+              
             }
             closedGitMilestones = git.GetMilestones(selectedGitRepositiry, false);
             if (closedGitMilestones != null)
             {
-                logger.AppendText("The " + selectedGitRepositiry + " has " + closedGitMilestones.Count.ToString() + " closed milestones.\n");
+                String textData = ("The " + selectedGitRepositiry + " has " + closedGitMilestones.Count.ToString() + " closed milestones.\n");
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData)));
             }
             openGitIssues = git.GetIssues(selectedGitRepositiry);
             if (openGitIssues != null)
             {
-                logger.AppendText("The " + selectedGitRepositiry + " has " + openGitIssues.Count.ToString() + " open issues.\n");
+                String textData = ("The " + selectedGitRepositiry + " has " + openGitIssues.Count.ToString() + " open issues.\n");
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData)));
                 // Get individual Comments for each open issue
                 foreach (Git2Bit.GitModels.Issue issue in openGitIssues)
                 {
@@ -145,7 +174,8 @@ namespace Git2Bit
                     {
                         // has comments:
                         List<Git2Bit.GitModels.Comments> comments = git.GetComments(selectedGitRepositiry, issue.number);
-                        logger.AppendText("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                        String textData1 = ("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                        Dispatcher.Invoke(new Action(() => logger.AppendText(textData1)));
                         gitComments[issue.number] = comments;
                     }
                 }
@@ -161,13 +191,13 @@ namespace Git2Bit
                     {
                         // has comments:
                         List<Git2Bit.GitModels.Comments> comments = git.GetComments(selectedGitRepositiry, issue.number);
-                        logger.AppendText("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                        String textData1 = ("Issue " + issue.number.ToString() + " has " + comments.Count.ToString() + " comments.\n");
+                        Dispatcher.Invoke(new Action(() => logger.AppendText(textData1)));
                         gitComments[issue.number] = comments;
                     }
                 }
             }
-
-            gitIssuesButton.IsEnabled = false;
+                     
         }
 
         private void gitRepositories_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -175,7 +205,8 @@ namespace Git2Bit
             //Enable gitIssueButton_Click with the selected repository
             gitIssuesButton.IsEnabled = true;
             selectedGitRepositiry = (string)gitRepositories.SelectedItem;
-            portBitIssuesToGit.IsEnabled = true;
+            // TODO
+            portBitIssuesToGit.IsEnabled = false;
         }
 
         private void bitRepositories_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -203,81 +234,92 @@ namespace Git2Bit
         private void portGitIssuesToBit_Click(object sender, RoutedEventArgs e)
         {
             busyIndicator.IsBusy = true;
-            try
-            {
-                BitBucketRest bit = new BitBucketRest(bitUsername.Text, bitPassword.Password);
-                if (closedGitMilestones != null && closedGitMilestones.Count > 0)
-                {
-                    logger.AppendText("This repo has closed Milestones. Porting them:->\n");
-                    foreach (Git2Bit.GitModels.Milestone amilestone in closedGitMilestones)
-                    {
-                        Git2Bit.BitModels.Milestone bitMilestone = bit.PostMilestone(selectedBitRepository, amilestone);
-                        if (bitMilestone != null)
-                        {
-                            logger.AppendText("Ported closed Milestone: " + bitMilestone.name + "\n");
-                        }
-                    }
-                }
-
-                if (openGitMilestones != null && openGitMilestones.Count > 0)
-                {
-                    logger.AppendText("This repo has open Milestones. Porting them:->\n");
-                    foreach (Git2Bit.GitModels.Milestone amilestone in openGitMilestones)
-                    {
-                        Git2Bit.BitModels.Milestone bitMilestone = bit.PostMilestone(selectedBitRepository, amilestone);
-                        if (bitMilestone != null)
-                        {
-                            logger.AppendText("Ported open Milestone: " + bitMilestone.name + "\n");
-                        }
-                    }
-                }
-
-                if (closedGitIssues != null && closedGitIssues.Count > 0)
-                {
-                    logger.AppendText("This repo has closed Git Issues. Porting them:->\n");
-                    foreach (Git2Bit.GitModels.Issue aissue in closedGitIssues)
-                    {
-                        List<Git2Bit.GitModels.Comments> issueComments = null;
-                        if (gitComments.ContainsKey(aissue.number))
-                        {
-                            issueComments = gitComments[aissue.number];
-                        }
-
-                        Git2Bit.BitModels.Issue bitIssue = bit.PostIssue(selectedBitRepository, aissue, issueComments);
-                        if (bitIssue != null)
-                        {
-                            logger.AppendText("Ported closed Issue: " + bitIssue.title + "\n");
-                        }
-                    }
-                }
-
-                if (openGitIssues != null && openGitIssues.Count > 0)
-                {
-                    logger.AppendText("This repo has open Git Issues. Porting them:->\n");
-                    foreach (Git2Bit.GitModels.Issue aissue in openGitIssues)
-                    {
-                        List<Git2Bit.GitModels.Comments> issueComments = null;
-                        if (gitComments.ContainsKey(aissue.number))
-                        {
-                            issueComments = gitComments[aissue.number];
-                        }
-
-                        Git2Bit.BitModels.Issue bitIssue = bit.PostIssue(selectedBitRepository, aissue, issueComments);
-                        if (bitIssue != null)
-                        {
-                            logger.AppendText("Ported open Issue: " + bitIssue.title + "\n");
-                        }
-                    }
-                }
-            }
-            catch (System.Exception excep)
-            {
-                busyIndicator.IsBusy = false;
-                MessageBox.Show(excep.Message);
-            }
-
-            busyIndicator.IsBusy = false;
+            busyIndicator.BusyContent = "Posting Git Issues to Bit ...";
+            BackgroundWorker bg = new BackgroundWorker();
+            List<String> arguments = new List<String>();
+            arguments.Add(bitUsername.Text);
+            arguments.Add(bitPassword.Password);
+            bg.DoWork += bg_bitIssuesWork;
+            bg.RunWorkerCompleted += bg_removeBusy;
+            bg.RunWorkerAsync(arguments);
+            
         }
+        private void bg_bitIssuesWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            List<String> list = e.Argument as List<String>;
+            BitBucketRest bit = new BitBucketRest(list[0],list[1]);
+            if (closedGitMilestones != null && closedGitMilestones.Count > 0)
+            {
+                String textData1 = ("This repo has closed Milestones. Porting them:->\n");
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData1)));
+                foreach (Git2Bit.GitModels.Milestone amilestone in closedGitMilestones)
+                {
+                    Git2Bit.BitModels.Milestone bitMilestone = bit.PostMilestone(selectedBitRepository, amilestone);
+                    if (bitMilestone != null)
+                    {
+                        String textData2 = ("Ported closed Milestone: " + bitMilestone.name + "\n");
+                        Dispatcher.Invoke(new Action(() => logger.AppendText(textData2)));
+                    }
+                }
+            }
 
+            if (openGitMilestones != null && openGitMilestones.Count > 0)
+            {
+                String textData1 = ("This repo has open Milestones. Porting them:->\n");
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData1)));
+                foreach (Git2Bit.GitModels.Milestone amilestone in openGitMilestones)
+                {
+                    Git2Bit.BitModels.Milestone bitMilestone = bit.PostMilestone(selectedBitRepository, amilestone);
+                    if (bitMilestone != null)
+                    {
+                        String textData2 = ("Ported open Milestone: " + bitMilestone.name + "\n");
+                        Dispatcher.Invoke(new Action(() => logger.AppendText(textData2)));
+                    }
+                }
+            }
+
+            if (closedGitIssues != null && closedGitIssues.Count > 0)
+            {
+                String textData1 = ("This repo has closed Git Issues. Porting them:->\n");
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData1)));
+                foreach (Git2Bit.GitModels.Issue aissue in closedGitIssues)
+                {
+                    List<Git2Bit.GitModels.Comments> issueComments = null;
+                    if (gitComments.ContainsKey(aissue.number))
+                    {
+                        issueComments = gitComments[aissue.number];
+                    }
+
+                    Git2Bit.BitModels.Issue bitIssue = bit.PostIssue(selectedBitRepository, aissue, issueComments);
+                    if (bitIssue != null)
+                    {
+                        String textData2 = ("Ported closed Issue: " + bitIssue.title + "\n");
+                        Dispatcher.Invoke(new Action(() => logger.AppendText(textData2)));
+                    }
+                }
+            }
+
+            if (openGitIssues != null && openGitIssues.Count > 0)
+            {
+                String textData1 = ("This repo has open Git Issues. Porting them:->\n");
+                Dispatcher.Invoke(new Action(() => logger.AppendText(textData1)));
+                foreach (Git2Bit.GitModels.Issue aissue in openGitIssues)
+                {
+                    List<Git2Bit.GitModels.Comments> issueComments = null;
+                    if (gitComments.ContainsKey(aissue.number))
+                    {
+                        issueComments = gitComments[aissue.number];
+                    }
+
+                    Git2Bit.BitModels.Issue bitIssue = bit.PostIssue(selectedBitRepository, aissue, issueComments);
+                    if (bitIssue != null)
+                    {
+                        String textData2 = ("Ported open Issue: " + bitIssue.title + "\n");
+                        Dispatcher.Invoke(new Action(() => logger.AppendText(textData2)));
+                    }
+                }
+            }
+        }
     }
 }
